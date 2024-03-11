@@ -154,6 +154,16 @@
   &--is-current-user {
     cursor: auto;
   }
+  &--is-in-call {
+    // TODO ?
+  }
+  &--is-speaking {
+    // TODO ?
+    border: 1px solid red;
+  }
+  &--is-muted {
+    // TODO ?
+  }
 }
 
 @mixin filledButtonOnCanvas {

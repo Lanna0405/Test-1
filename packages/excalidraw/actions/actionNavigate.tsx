@@ -5,6 +5,7 @@ import { eyeIcon } from "../components/icons";
 import { t } from "../i18n";
 import { Collaborator } from "../types";
 import { register } from "./register";
+import clsx from "clsx";
 
 export const actionGoToCollaborator = register({
   name: "goToCollaborator",
@@ -44,6 +45,14 @@ export const actionGoToCollaborator = register({
 
     const background = getClientColor(clientId);
 
+    const avatarClassNames = clsx({
+      "Avatar--is-followed": isBeingFollowed,
+      "Avatar--is-current-user": collaborator.isCurrentUser === true,
+      "Avatar--is-speaking": collaborator.isSpeaking,
+      "Avatar--is-in-call": collaborator.isInCall,
+      "Avatar--is-muted": collaborator.isMuted,
+    });
+
     return withName ? (
       <div
         className="dropdown-menu-item dropdown-menu-item-base UserList__collaborator"
@@ -54,8 +63,7 @@ export const actionGoToCollaborator = register({
           onClick={() => {}}
           name={collaborator.username || ""}
           src={collaborator.avatarUrl}
-          isBeingFollowed={isBeingFollowed}
-          isCurrentUser={collaborator.isCurrentUser === true}
+          className={avatarClassNames}
         />
         <div className="UserList__collaborator-name">
           {collaborator.username}
@@ -77,8 +85,7 @@ export const actionGoToCollaborator = register({
         }}
         name={collaborator.username || ""}
         src={collaborator.avatarUrl}
-        isBeingFollowed={isBeingFollowed}
-        isCurrentUser={collaborator.isCurrentUser === true}
+        className={avatarClassNames}
       />
     );
   },

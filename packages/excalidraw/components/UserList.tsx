@@ -97,6 +97,9 @@ const collaboratorComparatorKeys = [
   "id",
   "socketId",
   "username",
+  "isInCall",
+  "isSpeaking",
+  "isMuted",
 ] as const;
 
 export const UserList = React.memo(

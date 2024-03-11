@@ -86,14 +86,15 @@ export const SHAPES = [
 ] as const;
 
 export const findShapeByKey = (key: string) => {
-  const shape = SHAPES.find((shape, index) => {
-    return (
-      (shape.numericKey != null && key === shape.numericKey.toString()) ||
-      (shape.key &&
-        (typeof shape.key === "string"
-          ? shape.key === key
-          : (shape.key as readonly string[]).includes(key)))
-    );
-  });
-  return shape?.value || null;
+  // const shape = SHAPES.find((shape, index) => {
+  //   return (
+  //     (shape.numericKey != null && key === shape.numericKey.toString()) ||
+  //     (shape.key &&
+  //       (typeof shape.key === "string"
+  //         ? shape.key === key
+  //         : (shape.key as readonly string[]).includes(key)))
+  //   );
+  // });
+  // return shape?.value || null;
+  return null;
 };

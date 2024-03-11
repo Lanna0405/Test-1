@@ -95,6 +95,25 @@ interface CollabState {
   activeRoomLink: string | null;
 }
 
+const COLLABORATORS = new Map(
+  [
+    { id: "A", username: "AAA", isInCall: true },
+    { id: "B", username: "BBB" },
+    { id: "C", username: "CCC", isInCall: true, isSpeaking: true },
+    { id: "D", username: "DDD", isInCall: true },
+  ].map(
+    (x, idx) =>
+      [
+        x.id,
+        {
+          ...x,
+          pointer: { x: 550 + idx * 40, y: 550 + idx * 40, tool: "pointer" },
+          button: "up",
+        },
+      ] as [SocketId, Collaborator],
+  ),
+);
+
 export const activeRoomLinkAtom = atom<string | null>(null);
 
 type CollabInstance = InstanceType<typeof Collab>;
@@ -169,11 +188,41 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
   private onUmmount: (() => void) | null = null;
 
+  private updateCollaboratorStatus = (event: KeyboardEvent) => {
+    let socketId: SocketId | null = null;
+    switch (event.key) {
+      case "1":
+        socketId = "A" as SocketId;
+        break;
+      case "2":
+        socketId = "B" as SocketId;
+        break;
+      case "3":
+        socketId = "C" as SocketId;
+        break;
+      case "4":
+        socketId = "D" as SocketId;
+        break;
+      default:
+        return;
+    }
+    if (!socketId) {
+      return;
+    }
+    const collaborator = this.collaborators.get(socketId);
+    this.updateCollaborator(socketId, {
+      isSpeaking: !collaborator?.isSpeaking,
+    });
+    console.log(socketId);
+  };
+
   componentDidMount() {
     window.addEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
     window.addEventListener("online", this.onOfflineStatusToggle);
     window.addEventListener("offline", this.onOfflineStatusToggle);
     window.addEventListener(EVENT.UNLOAD, this.onUnload);
+
+    window.addEventListener("keydown", this.updateCollaboratorStatus);
 
     const unsubOnUserFollow = this.excalidrawAPI.onUserFollow((payload) => {
       this.portal.socket && this.portal.broadcastUserFollowed(payload);
@@ -222,6 +271,8 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   };
 
   componentWillUnmount() {
+    window.removeEventListener("keydown", this.updateCollaboratorStatus);
+
     window.removeEventListener("online", this.onOfflineStatusToggle);
     window.removeEventListener("offline", this.onOfflineStatusToggle);
     window.removeEventListener(EVENT.BEFORE_UNLOAD, this.beforeUnload);
@@ -813,8 +864,9 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   };
 
   setCollaborators(sockets: SocketId[]) {
-    const collaborators: InstanceType<typeof Collab>["collaborators"] =
-      new Map();
+    const collaborators: InstanceType<typeof Collab>["collaborators"] = new Map(
+      COLLABORATORS,
+    );
     for (const socketId of sockets) {
       collaborators.set(
         socketId,
@@ -823,12 +875,13 @@ class Collab extends PureComponent<CollabProps, CollabState> {
         }),
       );
     }
+
     this.collaborators = collaborators;
     this.excalidrawAPI.updateScene({ collaborators });
   }
 
   updateCollaborator = (socketId: SocketId, updates: Partial<Collaborator>) => {
-    const collaborators = new Map(this.collaborators);
+    const collaborators = new Map(COLLABORATORS);
     const user: Mutable<Collaborator> = Object.assign(
       {},
       collaborators.get(socketId),
